@@ -1,11 +1,10 @@
-import firebase from "firebase-admin"
-import 'dotenv/config'
-// @ts-ignore
-import * as credentials from "../config/credentials.json"
+import firebase, { ServiceAccount } from "firebase-admin";
+import "dotenv/config";
+import credentials from "../config/credentials";
 
 firebase.initializeApp({
-    credential: firebase.credential.cert(credentials),
-    databaseURL: process.env.DATABASE_URL_FIREBASE,
+  credential: firebase.credential.cert(credentials),
+  databaseURL: process.env.DATABASE_URL_FIREBASE,
 });
 
-export default  firebase
+export default firebase;

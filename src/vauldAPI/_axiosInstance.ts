@@ -1,6 +1,5 @@
 import axios from "axios";
-// import * as functions from "firebase-functions";
-import { createVauldPayload, signRequest } from "../utils/vauld";
+import { createVauldPayload, signRequest } from "./utils/vauld";
 
 const request = async <T>(
   url: string,
@@ -8,7 +7,7 @@ const request = async <T>(
 ): Promise<T> => {
   const data = createVauldPayload(payload);
   const result = await axios.post(
-    `{functions.config().vauld.endpoint}{url}`,
+    `${process.env.VAULD_API_ENDPOINT}${url}`,
     data,
     {
       headers: { hmac: signRequest(data) },
