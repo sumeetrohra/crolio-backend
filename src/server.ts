@@ -17,7 +17,7 @@ app.use(cookieParser());
 
 app.use("/api/v1", indexRouter);
 
-app.use("/tempRoute", tempRouter);
+app.use("/test", tempRouter);
 
 const start = () => {
   return dbConnect().then(() => {
