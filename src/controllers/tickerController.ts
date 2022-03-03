@@ -3,10 +3,6 @@ import TickerModel from "../models/tickerModel";
 
 export const updateAllTickerPrice = async (req, res) => {
   try {
-    const { id, pwd } = req.body;
-    if (id !== process.env.CRON_ID || pwd !== process.env.CRON_PWD) {
-      return res.status(401).send("Unauthorized");
-    }
     const data = await getVauldAllTickerPrice();
     if (!(data as any).success) {
       return res.status(500).send("Internal Error");
