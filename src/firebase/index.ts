@@ -4,7 +4,7 @@ import credentials from "../config/credentials";
 
 firebase.initializeApp({
   credential: firebase.credential.cert(credentials),
-  databaseURL: process.env.DATABASE_URL_FIREBASE.replace(/\\n/g, "\n"),
+  databaseURL: process.env.DATABASE_URL_FIREBASE,
 });
 
 export default firebase;
