@@ -127,4 +127,4 @@ export const requestKYCApproval = async (req, res) => {
 };
 
 // TODO: Sumeet For manual kyc check
-// export const getKycStatus = async (req, res) => {};
+// export const getKycStatusFromVauld = async (req, res) => {};
