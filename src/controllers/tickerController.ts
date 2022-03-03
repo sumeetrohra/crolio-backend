@@ -23,7 +23,7 @@ export const updateAllTickerPrice = async (req, res) => {
             ],
           });
         }
-        return TickerModel.update(
+        return TickerModel.updateOne(
           { pair: inrPairData.pair },
           {
             $push: {
