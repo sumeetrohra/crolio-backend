@@ -42,3 +42,12 @@ export const updateAllTickerPrice = async (req, res) => {
     res.status(500).send("Internal Error");
   }
 };
+
+export const getAllTickers = async (req, res) => {
+  try {
+    const tickers = await TickerModel.find();
+    return res.status(200).json({ tickers });
+  } catch (err) {
+    return res.status(500).send(err);
+  }
+};

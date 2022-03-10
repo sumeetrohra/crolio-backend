@@ -24,6 +24,10 @@ const TickerSchema = new Schema(
       index: true,
       unique: true,
     },
+    base: {
+      type: Number,
+      required: true,
+    },
     dailyPriceHistory: [TickerPriceData],
   },
   { timestamps: true }
