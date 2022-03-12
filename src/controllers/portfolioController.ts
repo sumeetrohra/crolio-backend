@@ -1,6 +1,9 @@
 import { getCryptoFiatPrice } from "../vauldAPI/tickers";
 import { getTickerById } from "../middlewares/tickers";
 import PortfolioModel from "../models/portfolioModel";
+import { getMinimumINRAmountToInvest } from "../helpers/portfolio";
+import UserModel from "../models/userModel";
+import InvestmentModel from "../models/investmentModel";
 
 const INDEX_CALC_INVESTMENT = 100000;
 
@@ -59,7 +62,7 @@ export const createPortfolio = async (req, res) => {
       pair: data.pair,
       weight,
       tickerAmount,
-      base,
+      base: data.baseAmount,
     };
   });
 
@@ -88,8 +91,21 @@ export const getAllPortfolios = async (req, res) => {
 
 export const getPortfolioData = async (req, res) => {
   try {
+    const user = await UserModel.findOne({ firebaseIdentifier: req.uid });
     const portfolio = await PortfolioModel.findById(req.params.portfolioId);
-    return res.status(200).json(portfolio);
+    const minInvestmentAmount = await getMinimumINRAmountToInvest(
+      portfolio.holdings
+    );
+    const investment = await InvestmentModel.findOne({
+      userRef: user._id,
+      portfolioRef: portfolio._id,
+    });
+    const folio = {
+      ...JSON.parse(JSON.stringify(portfolio)),
+      minInvestmentAmount: Math.ceil(minInvestmentAmount) + 1,
+      hasInvested: !!investment,
+    };
+    return res.status(200).json(folio);
   } catch (err) {
     return res.send(500).send("Internal error");
   }

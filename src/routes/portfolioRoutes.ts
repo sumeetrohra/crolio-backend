@@ -7,7 +7,7 @@ import {
 
 const router = express.Router();
 
-router.post("/create", createPortfolio);
+// router.post("/create", createPortfolio);
 router.get("/", getAllPortfolios);
 router.get("/:portfolioId", getPortfolioData);
 

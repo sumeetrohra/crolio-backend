@@ -56,6 +56,13 @@ const UserSchema = new Schema(
         required: [false, "vauld user key is required"],
       },
     },
+    investments: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "investments",
+        required: false,
+      },
+    ],
   },
   { timestamps: true }
 );
