@@ -6,7 +6,7 @@ import {
 
 const router = express.Router();
 
-// router.post("/invest", addInvestment);
+router.post("/invest", addInvestment);
 router.get("/", getAllUserInvestments);
 
 export default router;

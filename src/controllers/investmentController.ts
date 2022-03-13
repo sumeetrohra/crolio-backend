@@ -44,6 +44,11 @@ export const addInvestment = async (req, res) => {
     res.status(400).send("Amount is less than min amount");
   }
 
+  const prevInvestment = await InvestmentModel.findOne({
+    userRef: user._id,
+    portfolioRef: portfolio._id,
+  });
+
   const { holdings } = portfolio;
   const orderData = [];
   // tslint:disable-next-line: prefer-for-of
@@ -59,38 +64,91 @@ export const addInvestment = async (req, res) => {
     });
   }
 
-  const investmentResult = await InvestmentModel.create({
-    portfolioRef: portfolioId,
-    currentInvestment: amount,
-    moneyPutIn: amount,
-    realizedReturns: 0,
-    orders: {
-      batch: OrderType.INVEST,
-      transactions: orderData.map((order) => ({
-        orderID: order.orderID,
-        depositToken: order.depositToken,
-        destinationToken: order.destinationToken,
-        depositAmount: order.depositAmount,
-        destinationAmount: order.destinationAmount,
-        type: order.type,
-        fee: order.fee,
-      })),
-    },
-    holdings: orderData.map((order) => ({
-      _id: order.holding.id,
-      pair: order.holding.pair,
-      weight: order.holding.weight,
-      base: order.holding.base,
-      tickerAmount: order.destinationAmount,
-      currentInvestment: order.depositAmount,
-    })),
-  });
+  let investmentResult;
 
-  await UserModel.findByIdAndUpdate(user._id, {
-    $push: {
-      investments: investmentResult._id,
-    },
-  });
+  if (prevInvestment) {
+    investmentResult = await InvestmentModel.updateOne(
+      {
+        _id: prevInvestment._id,
+      },
+      {
+        $push: {
+          orders: {
+            batch: OrderType.INVEST_MORE,
+            transactions: orderData.map((order) => ({
+              orderID: order.orderID,
+              depositToken: order.depositToken,
+              destinationToken: order.destinationToken,
+              depositAmount: order.depositAmount,
+              destinationAmount: order.destinationAmount,
+              type: order.type,
+              fee: order.fee,
+            })),
+          },
+        },
+        $set: {
+          moneyPutIn: prevInvestment.moneyPutIn + amount,
+          currentInvestment: prevInvestment.currentInvestment + amount,
+          holdings: orderData.map((order) => ({
+            _id: order.holding.id,
+            pair: order.holding.pair,
+            weight: order.holding.weight,
+            base: order.holding.base,
+            tickerAmount:
+              Number(order.destinationAmount) +
+              Number(
+                prevInvestment.holdings.find(
+                  (holding) => holding.pair === order.holding.pair
+                ).tickerAmount
+              ),
+            currentInvestment:
+              Number(order.depositAmount) +
+              Number(
+                prevInvestment.holdings.find(
+                  (holding) => holding.pair === order.holding.pair
+                ).currentInvestment
+              ),
+          })),
+        },
+      }
+    );
+
+    return res.status(200).json(investmentResult);
+  } else {
+    investmentResult = await InvestmentModel.create({
+      portfolioRef: portfolioId,
+      currentInvestment: amount,
+      moneyPutIn: amount,
+      realizedReturns: 0,
+      orders: {
+        batch: OrderType.INVEST,
+        transactions: orderData.map((order) => ({
+          orderID: order.orderID,
+          depositToken: order.depositToken,
+          destinationToken: order.destinationToken,
+          depositAmount: order.depositAmount,
+          destinationAmount: order.destinationAmount,
+          type: order.type,
+          fee: order.fee,
+        })),
+      },
+      holdings: orderData.map((order) => ({
+        _id: order.holding.id,
+        pair: order.holding.pair,
+        weight: order.holding.weight,
+        base: order.holding.base,
+        tickerAmount: order.destinationAmount,
+        currentInvestment: order.depositAmount,
+      })),
+    });
+
+    await UserModel.findByIdAndUpdate(user._id, {
+      $push: {
+        investments: investmentResult._id,
+      },
+    });
+  }
+
   return res.status(201).json(investmentResult);
 };
 
