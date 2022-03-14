@@ -120,6 +120,7 @@ export const addInvestment = async (req, res) => {
       currentInvestment: amount,
       moneyPutIn: amount,
       realizedReturns: 0,
+      userRef: user._id,
       orders: {
         batch: OrderType.INVEST,
         transactions: orderData.map((order) => ({
